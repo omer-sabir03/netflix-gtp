@@ -3,13 +3,18 @@
    -Configured Tailwind css
    -Header
    -Loginform
+   -Firebase Authentication
+   -React Redux 
+   -signin signout 
+   
+
 
 #Features
 -Login/Sign up
   -Sign In/ Sign Up Form
   -redirect to Browse Page
 
--Broswse (After Authentication)
+#Broswse (After Authentication)
    -Header
    -Main Movie
      -Trailer in Backgroud

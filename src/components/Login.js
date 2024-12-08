@@ -1,33 +1,45 @@
 import React, { useRef, useState } from 'react'
 import Header from './Header'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { handleFormValidation } from '../utils/FormValidation';
-import { auth } from '../utils/firebaseConfig';
-import { createUserWithEmailAndPassword ,signInWithEmailAndPassword} from 'firebase/auth';
+import { auth } from '../utils/FirebaseConfig';
+import { createUserWithEmailAndPassword ,signInWithEmailAndPassword,updateProfile} from 'firebase/auth';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/UserSlice';
 
 const Login = () => {
   const [isSignInForm,setIsSignInForm]=useState(true);
   const [errorMessage,setErrorMessage]=useState(null);
+  const dispatcher=useDispatch();
+  const navigate=useNavigate();
 
   const name=useRef(null);
   const email=useRef(null);
   const password=useRef(null);
+  const rememberMe=useRef(false);
 
   const toggleSignInForm=()=>{
          setIsSignInForm(!(isSignInForm));
   }
 
   const handleSubmitForm=()=>{
+    console.log(rememberMe.current.checked)
     !isSignInForm && (console.log(name.current.value));
     const errorMessage=handleFormValidation(name?.current?.value,email.current.value,password.current.value,!isSignInForm);
           setErrorMessage(errorMessage);
           if(errorMessage) return;
-          if(isSignInForm){
-            signInWithEmailAndPassword(auth, email.current.value,password.current.value)
+          if(!isSignInForm){
+            createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
             .then((userCredential) => {
-              // Signed in 
-              const userToken = userCredential.user;
-              console.log(userToken);
+              updateProfile(auth.currentUser, {
+                displayName: name.current.value, photoURL: "https://media.licdn.com/dms/image/v2/D4D35AQGBlg0-NvWXsQ/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1724813744664?e=1734195600&v=beta&t=CEuuqNFt7C3g3THOvqaJjy8kOiY5JU6YZvZrQCZY4i8"
+              }).then(() => {              
+                 const {displayName,photoURL,email}=auth.currentUser;
+                  dispatcher(addUser({displayName:displayName,photoURL:photoURL,email:email}));
+                navigate("/browse")
+              }).catch((error) => {
+                  setErrorMessage(error);
+              });
             })
             .catch((error) => {
               const errorCode = error.code;
@@ -35,9 +47,10 @@ const Login = () => {
               setErrorMessage(errorCode+"-"+errorMessage)
             });
           }else{
-            createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
+            signInWithEmailAndPassword(auth, email.current.value,password.current.value)
   .then((userCredential) => { 
     const userToken = userCredential.user;
+    navigate("/browse")
     console.log(userToken);
   })
   .catch((error) => {
@@ -62,6 +75,7 @@ const Login = () => {
             <input ref={password} className='my-3 p-2 w-full bg-gray-700' type='password' placeholder='Enter Password' /> <br/>
             <p>{errorMessage}</p>
             <button  className='my-3 bg-red-700 p-2 rounded-lg w-full' onClick={handleSubmitForm}>{isSignInForm?"Sign In":"Sign Up"}</button>
+            <label><input ref={rememberMe} type='checkbox' /> Remember Me </label>
             <p className='my-6' >{isSignInForm?(<>New to Netflix? <strong className='cursor-pointer' onClick={toggleSignInForm}>Sign up </strong> now.</>):(<>Already Registered <strong className='cursor-pointer' onClick={toggleSignInForm}>Sign In </strong></>)}</p>
             <p className='my-3'>This page is protected by Google reCAPTCHA to ensure you're not a bot. <i>Learn more.</i></p>
         </form>
