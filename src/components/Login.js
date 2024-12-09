@@ -36,7 +36,6 @@ const Login = () => {
               }).then(() => {              
                  const {displayName,photoURL,email}=auth.currentUser;
                   dispatcher(addUser({displayName:displayName,photoURL:photoURL,email:email}));
-                navigate("/browse")
               }).catch((error) => {
                   setErrorMessage(error);
               });
@@ -58,7 +57,6 @@ const Login = () => {
     const errorMessage = error.message;
     setErrorMessage(errorCode+"-"+errorMessage)
   });
-
           }
   }
   return (
@@ -75,7 +73,7 @@ const Login = () => {
             <input ref={password} className='my-3 p-2 w-full bg-gray-700' type='password' placeholder='Enter Password' /> <br/>
             <p>{errorMessage}</p>
             <button  className='my-3 bg-red-700 p-2 rounded-lg w-full' onClick={handleSubmitForm}>{isSignInForm?"Sign In":"Sign Up"}</button>
-            <label><input ref={rememberMe} type='checkbox' /> Remember Me </label>
+            {/* <label><input ref={rememberMe} type='checkbox' /> Remember Me </label>  */}
             <p className='my-6' >{isSignInForm?(<>New to Netflix? <strong className='cursor-pointer' onClick={toggleSignInForm}>Sign up </strong> now.</>):(<>Already Registered <strong className='cursor-pointer' onClick={toggleSignInForm}>Sign In </strong></>)}</p>
             <p className='my-3'>This page is protected by Google reCAPTCHA to ensure you're not a bot. <i>Learn more.</i></p>
         </form>
